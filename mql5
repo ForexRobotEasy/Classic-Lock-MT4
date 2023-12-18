@@ -1,0 +1,88 @@
+
+// Classic Lock MT4 - Forex Trading System
+// Developer's Site: forexroboteasy.com
+// Development: Forex Robot Easy Team
+
+// Import necessary libraries
+#include <Trade\Trade.mqh>
+#include <Trade\PositionInfo.mqh>
+
+// Define global variables
+input int TimeFrame_for_Strategy = PERIOD_H1;
+int MagicNumber = 123456;
+
+// Define function for initiating and supporting transactions
+void ClassicLockMT4()
+{
+   // Get current timeframe
+   int timeframe = Period();
+
+   // Check if the current timeframe matches the required timeframe
+   if (timeframe == TimeFrame_for_Strategy)
+   {
+      // Loop through all the available symbols
+      for (int i = 0; i < SymbolsTotal(); i++)
+      {
+         // Get the symbol name
+         string symbol = SymbolName(i, false);
+
+         // Check if the symbol is allowed for trading
+         if (IsTradeAllowed(symbol))
+         {
+            // Check if the symbol is a currency pair
+            if (SymbolInfoInteger(symbol, SYMBOL_TYPE) == SYMBOL_CURRENCY_PAIR)
+            {
+               // Get the current price
+               double price = SymbolInfoDouble(symbol, SYMBOL_LAST);
+
+               // Check if the price is above a certain threshold
+               if (price > 1.0)
+               {
+                  // Open a buy order with the specified volume
+                  if (OrderSend(symbol, OP_BUY, 0.01, price, 3, 0, 0, 'Classic Lock MT4', MagicNumber))
+                  {
+                     Print('Buy order opened for symbol: ', symbol);
+                  }
+                  else
+                  {
+                     Print('Failed to open buy order for symbol: ', symbol);
+                  }
+               }
+               else if (price < 1.0)
+               {
+                  // Open a sell order with the specified volume
+                  if (OrderSend(symbol, OP_SELL, 0.01, price, 3, 0, 0, 'Classic Lock MT4', MagicNumber))
+                  {
+                     Print('Sell order opened for symbol: ', symbol);
+                  }
+                  else
+                  {
+                     Print('Failed to open sell order for symbol: ', symbol);
+                  }
+               }
+            }
+         }
+      }
+   }
+}
+
+// Initialize the Expert Advisor
+int OnInit()
+{
+   // Set the required timeframe
+   Period_Set(TimeFrame_for_Strategy);
+
+   return(INIT_SUCCEEDED);
+}
+
+// Start the Expert Advisor
+void OnTick()
+{
+   ClassicLockMT4();
+}
+
+// Logical conclusion
+void OnDeinit(const int reason)
+{
+   Print('Classic Lock MT4 Expert Advisor deactivated.');
+}
